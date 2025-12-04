@@ -85,9 +85,9 @@ public class PlayerControler : Subject<GameEvent>
             switch (mov.type)
             {
                 case moveObs.obsType.premio:
+                    puntos++;
                     Notify(GameEvent.dataChange, new int[] { puntos, life });
-                    LevelManager.Instance.points++;
-                    Destroy(other.gameObject);
+                    other.gameObject.SetActive(false);
                     break;
                 case moveObs.obsType.obstaculo:
                     Notify(GameEvent.dataChange, new int[] { puntos, life });
@@ -97,7 +97,7 @@ public class PlayerControler : Subject<GameEvent>
                     {
                         Notify(GameEvent.GameOver);
                     }
-                    Destroy(other.gameObject);
+                    other.gameObject.SetActive(false);
                     break;
                 case moveObs.obsType.enemigo:
 

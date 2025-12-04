@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 6404523362798787147}
   - component: {fileID: 1344351151430632475}
   m_Layer: 0
-  m_Name: Cube
+  m_Name: Obstaculo
   m_TagString: spawner
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -122,4 +122,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   type: 0
-  speed: 10
+  speed: 20
