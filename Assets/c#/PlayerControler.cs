@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -19,9 +20,15 @@ public class PlayerControler : Subject<GameEvent>
     private Vector2 moveInput;
     public int life = 3;
     public int puntos = 0;
+    public GameObject magicPrifad;
+    private GameObject magicObj;
+    public float timeMagic;
+    private bool magiaDisponible = true;
 
     private void Start()
     {
+        magicObj = Instantiate(magicPrifad);
+        magicObj.SetActive(false);
         AddObserver(UIManager.Instance);
         AddObserver(AudioManager.Instance);
         UIManager.Instance.UpdateUIPLayerData(puntos,life);
@@ -61,21 +68,26 @@ public class PlayerControler : Subject<GameEvent>
             }
         }
     }
-    public void movePlayerInput()
+    public void ataque(InputAction.CallbackContext context)
     {
-        /*
-        //Input
-        if (Input.GetKeyDown(KeyCode.A))
+        if (context.performed)
         {
-            
+            Debug.Log("Ataque");
+            if (magiaDisponible)
+            {
+                magicObj.SetActive(true);
+                magicObj.transform.position = this.transform.position;
+                StartCoroutine(magicObj.GetComponent<moveObs>().apagadoManual(1));
+                StartCoroutine(esperaMagia());
+            }
         }
 
-        if (Input.GetKeyDown(KeyCode.B))
-        {
-            
-        }*/
-
-        //Animation 
+    }
+    IEnumerator esperaMagia()
+    {
+        magiaDisponible = false;
+        yield return new WaitForSeconds(timeMagic);
+        magiaDisponible = true;
     }
     private void OnTriggerEnter(Collider other)
     {
@@ -100,7 +112,24 @@ public class PlayerControler : Subject<GameEvent>
                     other.gameObject.SetActive(false);
                     break;
                 case moveObs.obsType.enemigo:
-
+                    Notify(GameEvent.dataChange, new int[] { puntos, life });
+                    Notify(GameEvent.playerDamage);
+                    life--;
+                    if (life <= 0)
+                    {
+                        Notify(GameEvent.GameOver);
+                    }
+                    other.gameObject.SetActive(false);
+                    break;
+                case moveObs.obsType.enemigoAtaque:
+                    Notify(GameEvent.dataChange, new int[] { puntos, life });
+                    Notify(GameEvent.playerDamage);
+                    life--;
+                    if (life <= 0)
+                    {
+                        Notify(GameEvent.GameOver);
+                    }
+                    other.gameObject.SetActive(false);
                     break;
             }
         }

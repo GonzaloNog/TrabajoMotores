@@ -5,6 +5,8 @@ TagManager:
   serializedVersion: 3
   tags:
   - spawner
+  - offSpawner
+  - PlayerAtaque
   layers:
   - Default
   - TransparentFX
