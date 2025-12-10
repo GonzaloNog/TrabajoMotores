@@ -127,7 +127,7 @@ MonoBehaviour:
   type: 2
   speed: 20
   prioridad: 2
-  ataqueEnfriamiento: 2
+  ataqueEnfriamiento: 3
   resetAtaque: 0
   direccion: -1
 --- !u!54 &4455546886604070436

@@ -2,7 +2,7 @@ using System.Collections;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class moveObs : MonoBehaviour
+public class moveObs : Subject<GameEvent>
 {
     public enum obsType
     {
@@ -19,12 +19,17 @@ public class moveObs : MonoBehaviour
     public int ataqueEnfriamiento;
     public bool resetAtaque = false;
     public float direccion;
+    public float aumento = 1;
 
+    private void Start()
+    {
+        AddObserver(PlayerControler.Instance);
+    }
     void Update()
     {
         if (this.gameObject.activeInHierarchy)
         {
-            this.transform.Translate(new Vector3(0,0,direccion) * speed * Time.deltaTime);
+            this.transform.Translate(new Vector3(0,0,direccion) * speed * aumento * Time.deltaTime);
         }
         if (type == obsType.enemigo && resetAtaque)
         {
@@ -41,7 +46,30 @@ public class moveObs : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if(other.tag == "spawner")
+        if(type == obsType.playerAtaque)
+        {
+            if(other.tag == "spawner")
+            {
+                if(other.GetComponent<moveObs>().type == obsType.enemigo)
+                {
+                    Debug.Log("ENP: Enemigo Golpeado pora taque player");
+                    Notify(GameEvent.enemyDestroy);
+                    other.gameObject.SetActive(false);
+                    this.gameObject.SetActive(false);
+                }
+                if(other.GetComponent<moveObs>().type == obsType.enemigoAtaque)
+                {
+                    other.gameObject.SetActive(false);
+                    this.gameObject.SetActive(false);
+                }
+                if (other.GetComponent<moveObs>().type == obsType.enemigoAtaque)
+                {
+                    other.gameObject.SetActive(false);
+                    this.gameObject.SetActive(false);
+                }
+            }   
+        }
+        else if(other.tag == "spawner")
         {
             if (other.GetComponent<moveObs>().type != obsType.enemigoAtaque && type != obsType.enemigoAtaque)
             {
@@ -74,7 +102,9 @@ public class moveObs : MonoBehaviour
     }
     public IEnumerator apagadoManual(float time)
     {
+        Debug.Log("Apagado Manual:" + time);
         yield return new WaitForSeconds(time);
-        this.gameObject.SetActive(true);
+        Debug.Log("SE APAGO");
+        this.gameObject.SetActive(false);
     }
 }

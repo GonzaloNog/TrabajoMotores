@@ -7,13 +7,15 @@ public enum GameEvent
     GameOver,
     dataChange,
     playerDamage,
-    win
+    win,
+    enemyDestroy
 }
 
-public class PlayerControler : Subject<GameEvent>
+public class PlayerControler : Subject<GameEvent>, IObserver<GameEvent>
 {
 
-
+    public static PlayerControler Instance;
+    public GameObject pointSpawn;
     public float speed; 
     public GameObject[] points;
     private int pointID = 1;
@@ -24,6 +26,10 @@ public class PlayerControler : Subject<GameEvent>
     private GameObject magicObj;
     public float timeMagic;
     private bool magiaDisponible = true;
+    private void Awake()
+    {
+        Instance = this;
+    }
 
     private void Start()
     {
@@ -76,8 +82,8 @@ public class PlayerControler : Subject<GameEvent>
             if (magiaDisponible)
             {
                 magicObj.SetActive(true);
-                magicObj.transform.position = this.transform.position;
-                StartCoroutine(magicObj.GetComponent<moveObs>().apagadoManual(1));
+                magicObj.transform.position = pointSpawn.transform.position;
+                StartCoroutine(magicObj.GetComponent<moveObs>().apagadoManual(1f));
                 StartCoroutine(esperaMagia());
             }
         }
@@ -132,6 +138,26 @@ public class PlayerControler : Subject<GameEvent>
                     other.gameObject.SetActive(false);
                     break;
             }
+        }
+    }
+    public void OnNotify(GameEvent gameEvent, object data)
+    {
+        Debug.Log("Evento detectado en la UI");
+        switch (gameEvent)
+        {
+            case GameEvent.GameOver:
+                break;
+            case GameEvent.dataChange:
+                break;
+            case GameEvent.playerDamage:
+                break;
+            case GameEvent.win:
+                break;
+            case GameEvent.enemyDestroy:
+                Debug.Log("ENP: 5 PUNTOS");
+                puntos += 5;
+                Notify(GameEvent.dataChange, new int[] { puntos, life });
+                break;
         }
     }
 
