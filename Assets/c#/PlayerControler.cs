@@ -25,7 +25,9 @@ public class PlayerControler : Subject<GameEvent>, IObserver<GameEvent>
     public GameObject magicPrifad;
     private GameObject magicObj;
     public float timeMagic;
+    public float durationMagic;
     private bool magiaDisponible = true;
+    public bool powerUp = true;
     private void Awake()
     {
         Instance = this;
@@ -38,6 +40,7 @@ public class PlayerControler : Subject<GameEvent>, IObserver<GameEvent>
         AddObserver(UIManager.Instance);
         AddObserver(AudioManager.Instance);
         UIManager.Instance.UpdateUIPLayerData(puntos,life);
+        StartCoroutine(powerUPON());
     }
     // Update is called once per frame
     void Update()
@@ -83,7 +86,7 @@ public class PlayerControler : Subject<GameEvent>, IObserver<GameEvent>
             {
                 magicObj.SetActive(true);
                 magicObj.transform.position = pointSpawn.transform.position;
-                StartCoroutine(magicObj.GetComponent<moveObs>().apagadoManual(1f));
+                StartCoroutine(magicObj.GetComponent<moveObs>().apagadoManual(durationMagic));
                 StartCoroutine(esperaMagia());
             }
         }
@@ -159,6 +162,13 @@ public class PlayerControler : Subject<GameEvent>, IObserver<GameEvent>
                 Notify(GameEvent.dataChange, new int[] { puntos, life });
                 break;
         }
+    }
+    public IEnumerator powerUPON()
+    {
+        powerUp = false;
+        speed = speed * 2;
+        yield return new WaitForSeconds(5);
+        speed = speed / 2;
     }
 
 }

@@ -19,17 +19,26 @@ public class moveObs : Subject<GameEvent>
     public int ataqueEnfriamiento;
     public bool resetAtaque = false;
     public float direccion;
-    public float aumento = 1;
+    public GameObject buff;
 
     private void Start()
     {
         AddObserver(PlayerControler.Instance);
+        AddObserver(UIManager.Instance);
+        if(type != obsType.playerAtaque)
+        {
+            buff.SetActive(false);
+        }
     }
     void Update()
     {
+        if (LevelManager.Instance.dificultad > 1)
+        {
+            buff.SetActive(true);
+        }
         if (this.gameObject.activeInHierarchy)
         {
-            this.transform.Translate(new Vector3(0,0,direccion) * speed * aumento * Time.deltaTime);
+            this.transform.Translate(new Vector3(0,0,direccion) * speed * LevelManager.Instance.dificultad * Time.deltaTime);
         }
         if (type == obsType.enemigo && resetAtaque)
         {
@@ -48,6 +57,7 @@ public class moveObs : Subject<GameEvent>
     {
         if(type == obsType.playerAtaque)
         {
+            Debug.Log("PlayerAtaque: objeto " + other.tag);
             if(other.tag == "spawner")
             {
                 if(other.GetComponent<moveObs>().type == obsType.enemigo)
@@ -67,7 +77,11 @@ public class moveObs : Subject<GameEvent>
                     other.gameObject.SetActive(false);
                     this.gameObject.SetActive(false);
                 }
-            }   
+            }
+            if(other.tag == "Boss")
+            {
+                Notify(GameEvent.win);
+            }
         }
         else if(other.tag == "spawner")
         {
@@ -107,4 +121,5 @@ public class moveObs : Subject<GameEvent>
         Debug.Log("SE APAGO");
         this.gameObject.SetActive(false);
     }
+
 }
