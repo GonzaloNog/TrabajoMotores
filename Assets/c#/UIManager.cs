@@ -12,10 +12,20 @@ public class UIManager : MonoBehaviour, IObserver<GameEvent>
     public GameObject damage;
     public GameObject panelWin;
     public GameObject panelLose;
+    public GameObject panelLogros;
+    public TextMeshProUGUI panelLogrosTexto;
+    private bool enemigosB;
+    private bool pointB;
 
     public void Awake()
     {
         Instance = this;
+    }
+    private void Start()
+    {
+        enemigosB = false;
+        pointB = false;
+        panelLogros.SetActive(false);
     }
     public void OnNotify(GameEvent gameEvent, object data)
     {
@@ -31,6 +41,8 @@ public class UIManager : MonoBehaviour, IObserver<GameEvent>
                 {
                     int points = arr[0];
                     int lifes = arr[1];
+                    int enemigos = arr[2];
+                    nuevoLogro(points, enemigos);
                     UpdateUIPLayerData(points, lifes);
                 }
                 break;
@@ -42,6 +54,28 @@ public class UIManager : MonoBehaviour, IObserver<GameEvent>
                 panelWin.SetActive(true);
                 break;
         }
+    }
+    public void nuevoLogro(int puntos, int enemigos)
+    {
+        if(puntos > 2 && !pointB)
+        {
+            pointB = true;
+            panelLogros.SetActive(true);
+            panelLogrosTexto.text = "Nuevo Logro: +10 monedas";
+            StartCoroutine(nuevoLogroUI());
+        }
+        if (enemigos > 2 && !enemigosB)
+        {
+            enemigosB = true;
+            panelLogros.SetActive(true);
+            panelLogrosTexto.text = "Nuevo Logro: Matador de dragones";
+            StartCoroutine(nuevoLogroUI());
+        }
+    }
+    public IEnumerator nuevoLogroUI()
+    {
+        yield return new WaitForSeconds(3);
+        panelLogros.SetActive(false);
     }
     public void UpdateUIPLayerData(int _points, int _lifes)
     {

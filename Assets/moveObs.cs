@@ -11,7 +11,8 @@ public class moveObs : Subject<GameEvent>
         enemigo,
         enemigoAtaque,
         playerAtaque,
-        escenario
+        escenario,
+        powerUp
     }
 
     public obsType type;
@@ -34,7 +35,7 @@ public class moveObs : Subject<GameEvent>
     }
     void Update()
     {
-        if (LevelManager.Instance.dificultad > 1)
+        if (LevelManager.Instance.dificultad > 1 && buff != null)
         {
             buff.SetActive(true);
         }
@@ -66,6 +67,7 @@ public class moveObs : Subject<GameEvent>
                 {
                     Debug.Log("ENP: Enemigo Golpeado pora taque player");
                     Notify(GameEvent.enemyDestroy);
+                    PlayerControler.Instance.enemigosDerrotados++;
                     other.gameObject.SetActive(false);
                     this.gameObject.SetActive(false);
                 }
@@ -83,6 +85,15 @@ public class moveObs : Subject<GameEvent>
             if(other.tag == "Boss")
             {
                 Notify(GameEvent.win);
+            }
+        }
+        else if (type == obsType.powerUp)
+        {
+            if (other.gameObject.tag == "Player")
+            {
+                PlayerControler.Instance.powerUp = false;
+                other.gameObject.SetActive(false);
+                this.gameObject.SetActive(false);
             }
         }
         else if(other.tag == "spawner")
@@ -114,8 +125,8 @@ public class moveObs : Subject<GameEvent>
 
         if (obj != null) 
         { 
-            obj.SetActive(true); 
-            obj.transform.position = this.transform.position; 
+            obj.SetActive(true);
+            obj.transform.position = new Vector3(this.transform.position.x, this.transform.position.y + 2, this.transform.position.z + 6); 
         } 
         else 
             Debug.Log("Error al intentar atacar fuego"); StartCoroutine(nuevoAtaque()); 

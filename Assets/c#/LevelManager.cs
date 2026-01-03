@@ -8,4 +8,5 @@ public class LevelManager : MonoBehaviour
     {
         Instance = this;
     }
+
 }

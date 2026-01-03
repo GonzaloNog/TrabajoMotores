@@ -8,7 +8,7 @@ public enum GameEvent
     dataChange,
     playerDamage,
     win,
-    enemyDestroy
+    enemyDestroy,
 }
 
 public class PlayerControler : Subject<GameEvent>, IObserver<GameEvent>
@@ -27,9 +27,10 @@ public class PlayerControler : Subject<GameEvent>, IObserver<GameEvent>
     public float timeMagic;
     public float durationMagic;
     private bool magiaDisponible = true;
-    private bool powerUp = false;
+    public bool powerUp = false;
     public PlayerAnimation playerAnim; //Referencia al componente PlayerAnimation
     private Animator playerAnimator;
+    public int enemigosDerrotados;
     private void Awake()
     {
         Instance = this;
@@ -121,11 +122,11 @@ public class PlayerControler : Subject<GameEvent>, IObserver<GameEvent>
             {
                 case moveObs.obsType.premio:
                     puntos++;
-                    Notify(GameEvent.dataChange, new int[] { puntos, life });
+                    Notify(GameEvent.dataChange, new int[] { puntos, life, enemigosDerrotados });
                     other.gameObject.SetActive(false);
                     break;
                 case moveObs.obsType.obstaculo:
-                    Notify(GameEvent.dataChange, new int[] { puntos, life });
+                    Notify(GameEvent.dataChange, new int[] { puntos, life, enemigosDerrotados });
                     Notify(GameEvent.playerDamage);
                     life--;
                     if(life <= 0)
@@ -135,7 +136,7 @@ public class PlayerControler : Subject<GameEvent>, IObserver<GameEvent>
                     other.gameObject.SetActive(false);
                     break;
                 case moveObs.obsType.enemigo:
-                    Notify(GameEvent.dataChange, new int[] { puntos, life });
+                    Notify(GameEvent.dataChange, new int[] { puntos, life, enemigosDerrotados });
                     Notify(GameEvent.playerDamage);
                     life--;
                     if (life <= 0)
@@ -145,7 +146,7 @@ public class PlayerControler : Subject<GameEvent>, IObserver<GameEvent>
                     other.gameObject.SetActive(false);
                     break;
                 case moveObs.obsType.enemigoAtaque:
-                    Notify(GameEvent.dataChange, new int[] { puntos, life });
+                    Notify(GameEvent.dataChange, new int[] { puntos, life, enemigosDerrotados });
                     Notify(GameEvent.playerDamage);
                     life--;
                     if (life <= 0)
@@ -199,7 +200,7 @@ public class PlayerControler : Subject<GameEvent>, IObserver<GameEvent>
         speed /= 2f;
         playerAnim.isBoosting = false;
 
-        powerUp = false;
+        //powerUp = false;
     }
 
 }

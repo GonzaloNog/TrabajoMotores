@@ -8,6 +8,7 @@ TagManager:
   - offSpawner
   - PlayerAtaque
   - Boss
+  - Pared
   layers:
   - Default
   - TransparentFX
