@@ -5,48 +5,66 @@ public class BossControler : MonoBehaviour
 {
     public GameObject[] points;
     private int pointID = 0;
-    public float speed = 5;
-    public float timePoint;
-    public float timeStartBoss;
+
+    public float speed = 5f;
+    public float timePoint = 2f;
+
     private bool startCombat = true;
-    private bool waitNewPoint = true;
+    private bool waiting = false;
+
     public GameObject buff;
+    public Animator dragonAnim;
+    private AudioSource rugido;
+
     void Start()
     {
         buff.SetActive(false);
+        rugido = GetComponent<AudioSource>();
     }
 
-    // Update is called once per frame
     void Update()
     {
-        if (startCombat)
+        if (!startCombat) return;
+
+        Vector3 target = points[pointID].transform.position;
+        float distance = Vector3.Distance(transform.position, target);
+
+        bool isMoving = distance > 0.1f;
+        dragonAnim.SetBool("IsMoving", isMoving);
+
+        if (isMoving)
         {
-            transform.position = Vector3.MoveTowards(transform.position, points[pointID].transform.position, speed * Time.deltaTime);
-            if(Vector3.Distance(transform.position, points[pointID].transform.position) < 0.1f && waitNewPoint)
-            {
-                Debug.Log("DRAGON: Nuevo Punto Encontrado");
-                if(pointID >= 1)
-                {
-                    LevelManager.Instance.dificultad += 0.5f;
-                    buff.SetActive(true);
-                }
-                StartCoroutine(newPoint());
-            }
+            transform.position = Vector3.MoveTowards(transform.position, target, speed * Time.deltaTime);
+        }
+        else if (!waiting)
+        {
+            StartCoroutine(WaitAndMove());
         }
     }
-    IEnumerator newPoint()
+
+    IEnumerator WaitAndMove()
     {
-        waitNewPoint = false;
+        waiting = true;
+
+        // Rugido
+        dragonAnim.SetTrigger("Scream");
+        rugido.Play();
+
+        // Solo a partir del segundo punto
+        if (pointID >= 1)
+        {
+            LevelManager.Instance.dificultad += 0.5f;
+            buff.SetActive(true);
+        }
+
         yield return new WaitForSeconds(timePoint);
+
         buff.SetActive(false);
+
         pointID++;
-        if(pointID == points.Length)
-        {
+        if (pointID >= points.Length)
             pointID = points.Length - 1;
-        }
-        else
-        {
-            waitNewPoint = true;
-        }
+
+        waiting = false;
     }
 }

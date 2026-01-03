@@ -10,22 +10,24 @@ public class moveObs : Subject<GameEvent>
         premio,
         enemigo,
         enemigoAtaque,
-        playerAtaque
+        playerAtaque,
+        escenario
     }
 
     public obsType type;
     public float speed;
     public int prioridad;
-    public int ataqueEnfriamiento;
+    public float ataqueEnfriamiento;
     public bool resetAtaque = false;
     public float direccion;
     public GameObject buff;
+    public Animator animatorEnemyDragon;
 
     private void Start()
     {
         AddObserver(PlayerControler.Instance);
         AddObserver(UIManager.Instance);
-        if(type != obsType.playerAtaque)
+        if(type != obsType.playerAtaque && type != obsType.escenario)
         {
             buff.SetActive(false);
         }
@@ -102,18 +104,23 @@ public class moveObs : Subject<GameEvent>
         }
     }
     IEnumerator nuevoAtaque()
-    {
-        yield return new WaitForSeconds(ataqueEnfriamiento);
-        GameObject obj = Spawner.instance.getFuego();
-        if (obj != null)
-        {
-            obj.SetActive(true);
-            obj.transform.position = this.transform.position;
-        }
-        else
-            Debug.Log("Error al intentar atacar fuego");
-        StartCoroutine(nuevoAtaque());
+    { 
+        yield return new WaitForSeconds(ataqueEnfriamiento); 
+
+        if (animatorEnemyDragon != null) { 
+            animatorEnemyDragon.SetTrigger("Attack"); 
+        } 
+        GameObject obj = Spawner.instance.getFuego(); 
+
+        if (obj != null) 
+        { 
+            obj.SetActive(true); 
+            obj.transform.position = this.transform.position; 
+        } 
+        else 
+            Debug.Log("Error al intentar atacar fuego"); StartCoroutine(nuevoAtaque()); 
     }
+
     public IEnumerator apagadoManual(float time)
     {
         Debug.Log("Apagado Manual:" + time);

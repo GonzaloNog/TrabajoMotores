@@ -27,7 +27,9 @@ public class PlayerControler : Subject<GameEvent>, IObserver<GameEvent>
     public float timeMagic;
     public float durationMagic;
     private bool magiaDisponible = true;
-    public bool powerUp = true;
+    private bool powerUp = false;
+    public PlayerAnimation playerAnim; //Referencia al componente PlayerAnimation
+    private Animator playerAnimator;
     private void Awake()
     {
         Instance = this;
@@ -40,7 +42,7 @@ public class PlayerControler : Subject<GameEvent>, IObserver<GameEvent>
         AddObserver(UIManager.Instance);
         AddObserver(AudioManager.Instance);
         UIManager.Instance.UpdateUIPLayerData(puntos,life);
-        StartCoroutine(powerUPON());
+        playerAnimator = GetComponent<Animator>();
     }
     // Update is called once per frame
     void Update()
@@ -77,20 +79,32 @@ public class PlayerControler : Subject<GameEvent>, IObserver<GameEvent>
             }
         }
     }
-    public void ataque(InputAction.CallbackContext context)
+    public void attack(InputAction.CallbackContext context)
     {
-        if (context.performed)
+        if (context.performed && magiaDisponible)
         {
-            Debug.Log("Ataque");
-            if (magiaDisponible)
-            {
-                magicObj.SetActive(true);
-                magicObj.transform.position = pointSpawn.transform.position;
-                StartCoroutine(magicObj.GetComponent<moveObs>().apagadoManual(durationMagic));
-                StartCoroutine(esperaMagia());
-            }
+            StartCoroutine(AttackRoutine());
         }
+    }
 
+    IEnumerator AttackRoutine()
+    {
+        magiaDisponible = false;
+
+        // Lanzar animación
+        playerAnimator.SetTrigger("Attack");
+
+        // Espera hasta el frame donde sale el hechizo
+        yield return new WaitForSeconds(0.75f);   
+
+        // Disparo real
+        magicObj.SetActive(true);
+        magicObj.transform.position = pointSpawn.transform.position;
+        StartCoroutine(magicObj.GetComponent<moveObs>().apagadoManual(durationMagic));
+
+        // Cooldown
+        yield return new WaitForSeconds(timeMagic);
+        magiaDisponible = true;
     }
     IEnumerator esperaMagia()
     {
@@ -163,12 +177,29 @@ public class PlayerControler : Subject<GameEvent>, IObserver<GameEvent>
                 break;
         }
     }
-    public IEnumerator powerUPON()
+    public void OnBoost(InputAction.CallbackContext context)
     {
+        if (context.performed && !powerUp)
+        {
+            StartCoroutine(BoostCoroutine());
+        }
+    }
+
+    
+
+    IEnumerator BoostCoroutine()
+    {
+        powerUp = true;
+
+        speed *= 2f;
+        playerAnim.isBoosting = true;
+
+        yield return new WaitForSeconds(5f);
+
+        speed /= 2f;
+        playerAnim.isBoosting = false;
+
         powerUp = false;
-        speed = speed * 2;
-        yield return new WaitForSeconds(5);
-        speed = speed / 2;
     }
 
 }

@@ -6,12 +6,12 @@ using UnityEngine;
 public class Spawner : MonoBehaviour
 {
     public static Spawner instance;
-    //Prifad enemigos y objetos
+    //Prefad enemigos y objetos
     public GameObject[] Enemigos;
     public GameObject[] Obstaculos;
     public GameObject[] Premios;
     public GameObject[] fuegos;
-    //Largos de los pools
+    //Tamaño de los pools
     public int maxPoolEnemigos;
     public int maxPoolObstaculos;
     public int maxPoolPremios;
