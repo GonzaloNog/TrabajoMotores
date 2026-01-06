@@ -174,7 +174,7 @@ public class PlayerControler : Subject<GameEvent>, IObserver<GameEvent>
             case GameEvent.enemyDestroy:
                 Debug.Log("ENP: 5 PUNTOS");
                 puntos += 5;
-                Notify(GameEvent.dataChange, new int[] { puntos, life });
+                Notify(GameEvent.dataChange, new int[] { puntos, life, enemigosDerrotados });
                 break;
         }
     }
