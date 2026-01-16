@@ -45,7 +45,6 @@ public class moveObs : Subject<GameEvent>
         }
         if (type == obsType.enemigo && resetAtaque)
         {
-            Debug.Log("fuego prendido");
             resetAtaque = false;
             StartCoroutine(nuevoAtaque());
         }
@@ -60,19 +59,13 @@ public class moveObs : Subject<GameEvent>
     {
         if(type == obsType.playerAtaque)
         {
-            Debug.Log("PlayerAtaque: objeto " + other.tag);
+            
             if(other.tag == "spawner")
             {
                 if(other.GetComponent<moveObs>().type == obsType.enemigo)
                 {
-                    Debug.Log("ENP: Enemigo Golpeado pora taque player");
                     Notify(GameEvent.enemyDestroy);
                     PlayerControler.Instance.enemigosDerrotados++;
-                    other.gameObject.SetActive(false);
-                    this.gameObject.SetActive(false);
-                }
-                if(other.GetComponent<moveObs>().type == obsType.enemigoAtaque)
-                {
                     other.gameObject.SetActive(false);
                     this.gameObject.SetActive(false);
                 }
@@ -87,20 +80,10 @@ public class moveObs : Subject<GameEvent>
                 Notify(GameEvent.win);
             }
         }
-        else if (type == obsType.powerUp)
-        {
-            if (other.gameObject.tag == "Player")
-            {
-                PlayerControler.Instance.powerUp = false;
-                other.gameObject.SetActive(false);
-                this.gameObject.SetActive(false);
-            }
-        }
         else if(other.tag == "spawner")
         {
             if (other.GetComponent<moveObs>().type != obsType.enemigoAtaque && type != obsType.enemigoAtaque)
             {
-                Debug.Log("interpolacion de spawners detectada");
                 if (prioridad > other.GetComponent<moveObs>().prioridad)
                 {
                     other.gameObject.SetActive(false);
@@ -129,14 +112,14 @@ public class moveObs : Subject<GameEvent>
             obj.transform.position = new Vector3(this.transform.position.x, this.transform.position.y + 2, this.transform.position.z + 6); 
         } 
         else 
-            Debug.Log("Error al intentar atacar fuego"); StartCoroutine(nuevoAtaque()); 
+            StartCoroutine(nuevoAtaque()); 
     }
 
     public IEnumerator apagadoManual(float time)
     {
-        Debug.Log("Apagado Manual:" + time);
+       
         yield return new WaitForSeconds(time);
-        Debug.Log("SE APAGO");
+       
         this.gameObject.SetActive(false);
     }
 

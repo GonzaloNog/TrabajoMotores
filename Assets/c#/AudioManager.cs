@@ -11,6 +11,7 @@ public class AudioManager : MonoBehaviour, IObserver<GameEvent>
     public AudioClip points;
     public AudioClip win;
     public AudioClip lose;
+    public AudioClip powerUp;
 
     private void Awake()
     {
@@ -31,14 +32,20 @@ public class AudioManager : MonoBehaviour, IObserver<GameEvent>
             case GameEvent.GameOver:
                 m_AudioSource.clip = lose;
                 break;
+            case GameEvent.powerUpCollected:
+                m_AudioSource.clip = powerUp;
+                Debug.Log("PowerUp Audio");
+                break;
             case GameEvent.dataChange:
-                m_AudioSource.clip = points;
                 break;
             case GameEvent.playerDamage:
                 m_AudioSource.clip = damage;
                 break;
             case GameEvent.win:
                 m_AudioSource.clip = win;
+                break;
+            case GameEvent.coinCollected:
+                m_AudioSource.clip = points;
                 break;
         }
         m_AudioSource.Play();

@@ -9,6 +9,7 @@ public class UIManager : MonoBehaviour, IObserver<GameEvent>
     public static UIManager Instance;
     public TextMeshProUGUI life;
     public TextMeshProUGUI points;
+    public TextMeshProUGUI powerUps;
     public GameObject damage;
     public GameObject panelWin;
     public GameObject panelLose;
@@ -29,7 +30,7 @@ public class UIManager : MonoBehaviour, IObserver<GameEvent>
     }
     public void OnNotify(GameEvent gameEvent, object data)
     {
-        Debug.Log("Evento detectado en la UI");
+        
         switch (gameEvent)
         {
             case GameEvent.GameOver:
@@ -42,8 +43,9 @@ public class UIManager : MonoBehaviour, IObserver<GameEvent>
                     int points = arr[0];
                     int lifes = arr[1];
                     int enemigos = arr[2];
+                    int powerUps = arr[3];
                     nuevoLogro(points, enemigos);
-                    UpdateUIPLayerData(points, lifes);
+                    UpdateUIPLayerData(points, lifes, powerUps);
                 }
                 break;
             case GameEvent.playerDamage:
@@ -57,11 +59,11 @@ public class UIManager : MonoBehaviour, IObserver<GameEvent>
     }
     public void nuevoLogro(int puntos, int enemigos)
     {
-        if(puntos > 2 && !pointB)
+        if(puntos > 50 && !pointB)
         {
             pointB = true;
             panelLogros.SetActive(true);
-            panelLogrosTexto.text = "Nuevo Logro: +10 monedas";
+            panelLogrosTexto.text = "Nuevo Logro: +50 monedas";
             StartCoroutine(nuevoLogroUI());
         }
         if (enemigos > 2 && !enemigosB)
@@ -77,10 +79,11 @@ public class UIManager : MonoBehaviour, IObserver<GameEvent>
         yield return new WaitForSeconds(3);
         panelLogros.SetActive(false);
     }
-    public void UpdateUIPLayerData(int _points, int _lifes)
+    public void UpdateUIPLayerData(int _points, int _lifes, int _powerUps)
     {
         life.text = _lifes.ToString();
         points.text = _points.ToString();   
+        powerUps.text = _powerUps.ToString();
     }
     //corrutina, se ejecuta en paralelo, nos permite esperar tiempo concreto entre lineas de codigo
     public IEnumerator newDamage()

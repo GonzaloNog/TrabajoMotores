@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -9,6 +9,8 @@ public enum GameEvent
     playerDamage,
     win,
     enemyDestroy,
+    powerUpCollected,
+    coinCollected,
 }
 
 public class PlayerControler : Subject<GameEvent>, IObserver<GameEvent>
@@ -27,7 +29,8 @@ public class PlayerControler : Subject<GameEvent>, IObserver<GameEvent>
     public float timeMagic;
     public float durationMagic;
     private bool magiaDisponible = true;
-    public bool powerUp = false;
+    public bool powerUpActive = false;
+    public int powerUpCount = 0;
     public PlayerAnimation playerAnim; //Referencia al componente PlayerAnimation
     private Animator playerAnimator;
     public int enemigosDerrotados;
@@ -42,7 +45,7 @@ public class PlayerControler : Subject<GameEvent>, IObserver<GameEvent>
         magicObj.SetActive(false);
         AddObserver(UIManager.Instance);
         AddObserver(AudioManager.Instance);
-        UIManager.Instance.UpdateUIPLayerData(puntos,life);
+        UIManager.Instance.UpdateUIPLayerData(puntos,life,powerUpCount);
         playerAnimator = GetComponent<Animator>();
     }
     // Update is called once per frame
@@ -92,7 +95,7 @@ public class PlayerControler : Subject<GameEvent>, IObserver<GameEvent>
     {
         magiaDisponible = false;
 
-        // Lanzar animaci�n
+        // Lanzar animación
         playerAnimator.SetTrigger("Attack");
 
         // Espera hasta el frame donde sale el hechizo
@@ -122,11 +125,12 @@ public class PlayerControler : Subject<GameEvent>, IObserver<GameEvent>
             {
                 case moveObs.obsType.premio:
                     puntos++;
-                    Notify(GameEvent.dataChange, new int[] { puntos, life, enemigosDerrotados });
+                    Notify(GameEvent.dataChange, new int[] { puntos, life, enemigosDerrotados, powerUpCount });
+                    Notify(GameEvent.coinCollected);
                     other.gameObject.SetActive(false);
                     break;
                 case moveObs.obsType.obstaculo:
-                    Notify(GameEvent.dataChange, new int[] { puntos, life, enemigosDerrotados });
+                    Notify(GameEvent.dataChange, new int[] { puntos, life, enemigosDerrotados, powerUpCount });
                     Notify(GameEvent.playerDamage);
                     life--;
                     if(life <= 0)
@@ -136,7 +140,7 @@ public class PlayerControler : Subject<GameEvent>, IObserver<GameEvent>
                     other.gameObject.SetActive(false);
                     break;
                 case moveObs.obsType.enemigo:
-                    Notify(GameEvent.dataChange, new int[] { puntos, life, enemigosDerrotados });
+                    Notify(GameEvent.dataChange, new int[] { puntos, life, enemigosDerrotados, powerUpCount });
                     Notify(GameEvent.playerDamage);
                     life--;
                     if (life <= 0)
@@ -146,13 +150,19 @@ public class PlayerControler : Subject<GameEvent>, IObserver<GameEvent>
                     other.gameObject.SetActive(false);
                     break;
                 case moveObs.obsType.enemigoAtaque:
-                    Notify(GameEvent.dataChange, new int[] { puntos, life, enemigosDerrotados });
+                    Notify(GameEvent.dataChange, new int[] { puntos, life, enemigosDerrotados, powerUpCount });
                     Notify(GameEvent.playerDamage);
                     life--;
                     if (life <= 0)
                     {
                         Notify(GameEvent.GameOver);
                     }
+                    other.gameObject.SetActive(false);
+                    break;
+                case moveObs.obsType.powerUp:
+                    powerUpCount++;
+                    Notify(GameEvent.dataChange, new int[] { puntos, life, enemigosDerrotados, powerUpCount });
+                    Notify(GameEvent.powerUpCollected, null);
                     other.gameObject.SetActive(false);
                     break;
             }
@@ -174,24 +184,26 @@ public class PlayerControler : Subject<GameEvent>, IObserver<GameEvent>
             case GameEvent.enemyDestroy:
                 Debug.Log("ENP: 5 PUNTOS");
                 puntos += 5;
-                Notify(GameEvent.dataChange, new int[] { puntos, life, enemigosDerrotados });
+                Notify(GameEvent.dataChange, new int[] { puntos, life, enemigosDerrotados, powerUpCount });
                 break;
         }
     }
+
+ 
     public void OnBoost(InputAction.CallbackContext context)
     {
-        if (context.performed && !powerUp)
+        if (context.performed && powerUpCount > 0 && !powerUpActive)
         {
             StartCoroutine(BoostCoroutine());
         }
     }
 
-    
-
     IEnumerator BoostCoroutine()
     {
-        powerUp = true;
+        powerUpActive = true;
+        powerUpCount--;
 
+        Notify(GameEvent.dataChange, new int[] { puntos, life, enemigosDerrotados, powerUpCount });
         speed *= 2f;
         playerAnim.isBoosting = true;
 
@@ -199,8 +211,7 @@ public class PlayerControler : Subject<GameEvent>, IObserver<GameEvent>
 
         speed /= 2f;
         playerAnim.isBoosting = false;
-
-        //powerUp = false;
+        powerUpActive = false;
     }
 
 }

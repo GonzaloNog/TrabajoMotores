@@ -74,7 +74,7 @@ MonoBehaviour:
   type: 2
   speed: 20
   prioridad: 2
-  ataqueEnfriamiento: 3
+  ataqueEnfriamiento: 4
   resetAtaque: 0
   direccion: -1
   buff: {fileID: 1443666648223905286}
