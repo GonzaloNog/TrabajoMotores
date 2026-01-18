@@ -11,6 +11,8 @@ public enum GameEvent
     enemyDestroy,
     powerUpCollected,
     coinCollected,
+    boostStart,
+    boostEnd,
 }
 
 public class PlayerControler : Subject<GameEvent>, IObserver<GameEvent>
@@ -18,7 +20,7 @@ public class PlayerControler : Subject<GameEvent>, IObserver<GameEvent>
 
     public static PlayerControler Instance;
     public GameObject pointSpawn;
-    public float speed; 
+    public float speed;
     public GameObject[] points;
     private int pointID = 1;
     private Vector2 moveInput;
@@ -130,9 +132,9 @@ public class PlayerControler : Subject<GameEvent>, IObserver<GameEvent>
                     other.gameObject.SetActive(false);
                     break;
                 case moveObs.obsType.obstaculo:
+                    life--;
                     Notify(GameEvent.dataChange, new int[] { puntos, life, enemigosDerrotados, powerUpCount });
                     Notify(GameEvent.playerDamage);
-                    life--;
                     if(life <= 0)
                     {
                         Notify(GameEvent.GameOver);
@@ -140,9 +142,9 @@ public class PlayerControler : Subject<GameEvent>, IObserver<GameEvent>
                     other.gameObject.SetActive(false);
                     break;
                 case moveObs.obsType.enemigo:
+                    life--;
                     Notify(GameEvent.dataChange, new int[] { puntos, life, enemigosDerrotados, powerUpCount });
                     Notify(GameEvent.playerDamage);
-                    life--;
                     if (life <= 0)
                     {
                         Notify(GameEvent.GameOver);
@@ -150,9 +152,9 @@ public class PlayerControler : Subject<GameEvent>, IObserver<GameEvent>
                     other.gameObject.SetActive(false);
                     break;
                 case moveObs.obsType.enemigoAtaque:
+                    life--;
                     Notify(GameEvent.dataChange, new int[] { puntos, life, enemigosDerrotados, powerUpCount });
                     Notify(GameEvent.playerDamage);
-                    life--;
                     if (life <= 0)
                     {
                         Notify(GameEvent.GameOver);
@@ -170,7 +172,6 @@ public class PlayerControler : Subject<GameEvent>, IObserver<GameEvent>
     }
     public void OnNotify(GameEvent gameEvent, object data)
     {
-        Debug.Log("Evento detectado en la UI");
         switch (gameEvent)
         {
             case GameEvent.GameOver:
@@ -182,7 +183,6 @@ public class PlayerControler : Subject<GameEvent>, IObserver<GameEvent>
             case GameEvent.win:
                 break;
             case GameEvent.enemyDestroy:
-                Debug.Log("ENP: 5 PUNTOS");
                 puntos += 5;
                 Notify(GameEvent.dataChange, new int[] { puntos, life, enemigosDerrotados, powerUpCount });
                 break;
@@ -194,6 +194,7 @@ public class PlayerControler : Subject<GameEvent>, IObserver<GameEvent>
     {
         if (context.performed && powerUpCount > 0 && !powerUpActive)
         {
+            Debug.Log("Boost Activado");
             StartCoroutine(BoostCoroutine());
         }
     }
@@ -204,11 +205,13 @@ public class PlayerControler : Subject<GameEvent>, IObserver<GameEvent>
         powerUpCount--;
 
         Notify(GameEvent.dataChange, new int[] { puntos, life, enemigosDerrotados, powerUpCount });
+        Notify(GameEvent.boostStart);
         speed *= 2f;
         playerAnim.isBoosting = true;
 
         yield return new WaitForSeconds(5f);
 
+        Notify(GameEvent.boostEnd);
         speed /= 2f;
         playerAnim.isBoosting = false;
         powerUpActive = false;

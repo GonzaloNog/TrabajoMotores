@@ -73,8 +73,7 @@ public class Spawner : MonoBehaviour
             tempGO.SetActive(false);
             PowerupPool.Add(tempGO);
         }
-        //Debug.Log("Lista enemigos: " + ObstaculosEnemigos.Count);
-        //Debug.Log("Lista premios: " + PremiosPool.Count);
+        
         StartCoroutine(spawnObstacle());
         StartCoroutine(spawnPremios());
         StartCoroutine(spawnEnemigos());

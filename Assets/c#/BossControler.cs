@@ -11,6 +11,7 @@ public class BossControler : MonoBehaviour
 
     private bool startCombat = true;
     private bool waiting = false;
+    private Collider bossCollider;
 
     public GameObject buff;
     public Animator dragonAnim;
@@ -20,6 +21,8 @@ public class BossControler : MonoBehaviour
     {
         buff.SetActive(false);
         rugido = GetComponent<AudioSource>();
+        bossCollider = GetComponent<Collider>();
+        bossCollider.enabled = false;
     }
 
     void Update()
@@ -36,9 +39,17 @@ public class BossControler : MonoBehaviour
         {
             transform.position = Vector3.MoveTowards(transform.position, target, speed * Time.deltaTime);
         }
-        else if (!waiting)
+        else
         {
-            StartCoroutine(WaitAndMove());
+            if (pointID == points.Length - 1 && !bossCollider.enabled)
+            {
+                bossCollider.enabled = true;
+            }
+
+            if (!waiting)
+            {
+                StartCoroutine(WaitAndMove());
+            }
         }
     }
 
@@ -53,7 +64,7 @@ public class BossControler : MonoBehaviour
         // Solo a partir del segundo punto
         if (pointID >= 1)
         {
-            LevelManager.Instance.dificultad += 0.5f;
+            LevelManager.Instance.dificultad += 0.2f;
             buff.SetActive(true);
         }
 
@@ -64,6 +75,8 @@ public class BossControler : MonoBehaviour
         pointID++;
         if (pointID >= points.Length)
             pointID = points.Length - 1;
+         
+
 
         waiting = false;
     }

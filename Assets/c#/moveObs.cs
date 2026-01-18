@@ -64,8 +64,8 @@ public class moveObs : Subject<GameEvent>
             {
                 if(other.GetComponent<moveObs>().type == obsType.enemigo)
                 {
-                    Notify(GameEvent.enemyDestroy);
                     PlayerControler.Instance.enemigosDerrotados++;
+                    Notify(GameEvent.enemyDestroy);
                     other.gameObject.SetActive(false);
                     this.gameObject.SetActive(false);
                 }

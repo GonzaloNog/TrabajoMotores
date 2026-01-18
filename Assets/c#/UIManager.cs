@@ -15,11 +15,19 @@ public class UIManager : MonoBehaviour, IObserver<GameEvent>
     public GameObject panelLose;
     public GameObject panelLogros;
     public TextMeshProUGUI panelLogrosTexto;
+    public Image logroPuntosImage;
+    public Image logroMatadragonesImage;
     private bool enemigosB;
     private bool pointB;
 
     public void Awake()
     {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
         Instance = this;
     }
     private void Start()
@@ -27,6 +35,10 @@ public class UIManager : MonoBehaviour, IObserver<GameEvent>
         enemigosB = false;
         pointB = false;
         panelLogros.SetActive(false);
+        panelWin.SetActive(false);   
+        panelLose.SetActive(false); 
+        logroPuntosImage.gameObject.SetActive(false);
+        logroMatadragonesImage.gameObject.SetActive(false);
     }
     public void OnNotify(GameEvent gameEvent, object data)
     {
@@ -59,17 +71,19 @@ public class UIManager : MonoBehaviour, IObserver<GameEvent>
     }
     public void nuevoLogro(int puntos, int enemigos)
     {
-        if(puntos > 50 && !pointB)
+        if(puntos > 100 && !pointB)
         {
             pointB = true;
             panelLogros.SetActive(true);
-            panelLogrosTexto.text = "Nuevo Logro: +50 monedas";
+            logroPuntosImage.gameObject.SetActive(true);
+            panelLogrosTexto.text = "Nuevo Logro: +100 monedas";
             StartCoroutine(nuevoLogroUI());
         }
-        if (enemigos > 2 && !enemigosB)
+        if (enemigos > 10 && !enemigosB)
         {
             enemigosB = true;
             panelLogros.SetActive(true);
+            logroMatadragonesImage.gameObject.SetActive(true);
             panelLogrosTexto.text = "Nuevo Logro: Matador de dragones";
             StartCoroutine(nuevoLogroUI());
         }
@@ -78,12 +92,20 @@ public class UIManager : MonoBehaviour, IObserver<GameEvent>
     {
         yield return new WaitForSeconds(3);
         panelLogros.SetActive(false);
+        logroMatadragonesImage.gameObject.SetActive(false);
+        logroPuntosImage.gameObject.SetActive(false);
+
     }
     public void UpdateUIPLayerData(int _points, int _lifes, int _powerUps)
     {
-        life.text = _lifes.ToString();
-        points.text = _points.ToString();   
-        powerUps.text = _powerUps.ToString();
+        if (life.text != _lifes.ToString())
+            life.text = _lifes.ToString();
+
+        if (points.text != _points.ToString())
+            points.text = _points.ToString();
+
+        if (powerUps.text != _powerUps.ToString())
+            powerUps.text = _powerUps.ToString();
     }
     //corrutina, se ejecuta en paralelo, nos permite esperar tiempo concreto entre lineas de codigo
     public IEnumerator newDamage()
