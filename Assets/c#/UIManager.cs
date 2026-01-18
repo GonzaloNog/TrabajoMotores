@@ -64,6 +64,7 @@ public class UIManager : MonoBehaviour, IObserver<GameEvent>
                 StartCoroutine(newDamage());//ejecutamos una corrutina concreta
                 break;
             case GameEvent.win:
+                Debug.Log("GANO");
                 Time.timeScale = 0;
                 panelWin.SetActive(true);
                 break;
@@ -84,7 +85,7 @@ public class UIManager : MonoBehaviour, IObserver<GameEvent>
             enemigosB = true;
             panelLogros.SetActive(true);
             logroMatadragonesImage.gameObject.SetActive(true);
-            panelLogrosTexto.text = "Nuevo Logro: Matador de dragones";
+            panelLogrosTexto.text = "Nuevo Logro: Cazador de dragones";
             StartCoroutine(nuevoLogroUI());
         }
     }

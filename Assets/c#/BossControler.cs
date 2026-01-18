@@ -10,7 +10,8 @@ public class BossControler : MonoBehaviour
     public float timePoint = 2f;
 
     private bool startCombat = true;
-    private bool waiting = false;
+    private bool isWaitingAtPoint = false;
+    private float screamDuration = 2.27f;
     private Collider bossCollider;
 
     public GameObject buff;
@@ -26,42 +27,47 @@ public class BossControler : MonoBehaviour
     }
 
     void Update()
+{
+    if (!startCombat) return;
+
+    Vector3 target = points[pointID].transform.position;
+    float distance = Vector3.Distance(transform.position, target);
+
+    float speedAnim = distance > 0.1f ? 1f : 0f;
+    dragonAnim.SetFloat("Speed", speedAnim);
+
+    if (distance > 0.1f)
     {
-        if (!startCombat) return;
-
-        Vector3 target = points[pointID].transform.position;
-        float distance = Vector3.Distance(transform.position, target);
-
-        bool isMoving = distance > 0.1f;
-        dragonAnim.SetBool("IsMoving", isMoving);
-
-        if (isMoving)
-        {
-            transform.position = Vector3.MoveTowards(transform.position, target, speed * Time.deltaTime);
+        isWaitingAtPoint = false;
+        transform.position = Vector3.MoveTowards(transform.position, target, speed * Time.deltaTime);
+    }
+    else
+    {
+        if (pointID == points.Length - 1 && !bossCollider.enabled) 
+        { 
+               bossCollider.enabled = true; 
         }
-        else
-        {
-            if (pointID == points.Length - 1 && !bossCollider.enabled)
-            {
-                bossCollider.enabled = true;
-            }
 
-            if (!waiting)
-            {
-                StartCoroutine(WaitAndMove());
-            }
+        if (!isWaitingAtPoint)
+        {
+               
+                StartCoroutine(WaitAtPoint());
         }
     }
-
-    IEnumerator WaitAndMove()
+}
+    IEnumerator WaitAtPoint()
     {
-        waiting = true;
+        isWaitingAtPoint = true;
 
-        // Rugido
-        dragonAnim.SetTrigger("Scream");
+        // Gritar UNA vez
+        dragonAnim.SetBool("Scream", true);
+        Debug.Log("RUGIENDO");
         rugido.Play();
 
-        // Solo a partir del segundo punto
+        yield return new WaitForSeconds(screamDuration);
+        dragonAnim.SetBool("Scream", false);
+
+
         if (pointID >= 1)
         {
             LevelManager.Instance.dificultad += 0.2f;
@@ -72,12 +78,9 @@ public class BossControler : MonoBehaviour
 
         buff.SetActive(false);
 
+        // Pasar al siguiente punto
         pointID++;
         if (pointID >= points.Length)
             pointID = points.Length - 1;
-         
-
-
-        waiting = false;
     }
 }

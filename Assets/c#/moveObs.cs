@@ -28,7 +28,9 @@ public class moveObs : Subject<GameEvent>
     {
         AddObserver(PlayerControler.Instance);
         AddObserver(UIManager.Instance);
-        if(type != obsType.playerAtaque && type != obsType.escenario)
+        AddObserver(AudioManager.Instance);
+
+        if (type != obsType.playerAtaque && type != obsType.escenario)
         {
             buff.SetActive(false);
         }

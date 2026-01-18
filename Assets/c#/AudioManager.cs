@@ -73,6 +73,7 @@ public class AudioManager : MonoBehaviour, IObserver<GameEvent>
                 break;
 
             case GameEvent.win:
+                Debug.Log("Win sound played");
                 musicSource.Stop();
                 m_AudioSource.PlayOneShot(win);
                 break;
